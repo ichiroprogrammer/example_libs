@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(RingBuffTest)
 
-# C++11を要求
-set(CMAKE_CXX_STANDARD 11)
+# C++14を要求
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Google Testを取得
@@ -42,3 +42,18 @@ target_include_directories(
 # テストの自動検出
 include(GoogleTest)
 gtest_discover_tests(ringbuff_test)
+
+# clang-formatターゲットの追加（対象ファイルを明示的に指定）
+find_program(CLANG_FORMAT clang-format)
+if(CLANG_FORMAT)
+  add_custom_target(
+    format
+    COMMAND ${CLANG_FORMAT} -i 
+      ${CMAKE_CURRENT_SOURCE_DIR}/ring_buff.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_ringbuff.cpp
+    COMMENT "Running clang-format on source files"
+    VERBATIM
+  )
+else()
+  message(WARNING "clang-format not found. 'format' target will not be available.")
+endif()

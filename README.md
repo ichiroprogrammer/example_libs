@@ -25,12 +25,15 @@ cmake --build .
 ctest
 # または
 ./ringbuff_test
+
+# コードフォーマット (clang-formatが必要)
+make format
 ```
 
 ## 使用例
 
 ```cpp
-#include "RingBuff.h"
+#include "ring_buff.h"
 
 int main() {
     RingBuff<int, 10> buffer;
@@ -50,3 +53,4 @@ int main() {
 - C++11以降
 - CMake 3.14以降
 - インターネット接続（初回ビルド時にGoogle Testをダウンロード）
+- clang-format（オプション、コードフォーマット用）
