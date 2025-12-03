@@ -1,56 +1,37 @@
-# RingBuff クラステンプレート
+# example_libs
 
-std::arrayを使用したリングバッファの実装です。
+std::arrayを使用したリングバッファの実装
 
 ## ファイル構成
 
-- `RingBuff.h` - リングバッファのクラステンプレート
-- `test_ringbuff.cpp` - Google Testの単体テスト
-- `CMakeLists.txt` - CMakeビルド設定
+- `ring_buff.h` - リングバッファのクラステンプレート
+- `ring_buff_test.cpp` - Google Testの単体テスト
+
+# LimitedVector
+
+上限付きvectorの実装。
+std::vectorのpublic派生でも実装量は減るが、
+std::vectorのpublic派生されることを想定していないため、std::vectorの包含で実装した。
+
+std::arrayはmoveが遅いため、std::arrayではだめ。
+
+## ファイル構成
+
+- `limited_vector.h`リングバッファのクラステンプレート
+- `limited_vector_test.cpp`
+
 
 ## ビルド手順
 
 ```bash
-# ビルドディレクトリを作成
-mkdir build
-cd build
+    $./build.sh     # でビルド
 
-# CMakeで設定
-cmake ..
-
-# ビルド
-cmake --build .
-
-# テスト実行
-ctest
-# または
-./ringbuff_test
-
-# コードフォーマット (clang-formatが必要)
-make format
-```
-
-## 使用例
-
-```cpp
-#include "ring_buff.h"
-
-int main() {
-    RingBuff<int, 10> buffer;
-    
-    buffer.push(1);
-    buffer.push(2);
-    buffer.push(3);
-    
-    int val = buffer.pop();  // val = 1
-    
-    return 0;
-}
+    $./build.sh -h  # ヘルプメッセージ
 ```
 
 ## 要件
 
-- C++11以降
+- C++14以降
 - CMake 3.14以降
 - インターネット接続（初回ビルド時にGoogle Testをダウンロード）
 - clang-format（オプション、コードフォーマット用）
