@@ -22,26 +22,28 @@ enable_testing()
 
 # テスト実行ファイルを作成
 add_executable(
-  ringbuff_test
-  test_ringbuff.cpp
+  example_libs_test
+  ring_buff_test.cpp
+  limited_vector_test.cpp
+
 )
 
 # Google Testとリンク
 target_link_libraries(
-  ringbuff_test
+  example_libs_test
   GTest::gtest_main
 )
 
 # ヘッダーファイルのインクルードパスを追加
 target_include_directories(
-  ringbuff_test
+  example_libs_test
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # テストの自動検出
 include(GoogleTest)
-gtest_discover_tests(ringbuff_test)
+gtest_discover_tests(example_libs_test)
 
 # clang-formatターゲットの追加（対象ファイルを明示的に指定）
 find_program(CLANG_FORMAT clang-format)
@@ -50,7 +52,9 @@ if(CLANG_FORMAT)
     format
     COMMAND ${CLANG_FORMAT} -i 
       ${CMAKE_CURRENT_SOURCE_DIR}/ring_buff.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/test_ringbuff.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/ring_buff_test.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/limited_vector.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/limited_vector_test.cpp
     COMMENT "Running clang-format on source files"
     VERBATIM
   )
