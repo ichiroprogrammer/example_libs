@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(RingBuffTest)
 
-# C++14を要求
-set(CMAKE_CXX_STANDARD 14)
+# C++17を要求
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Google Testを取得
@@ -21,12 +21,17 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # テスト実行ファイルを作成
+
+file(GLOB TEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/*_test.cpp
+)
+  
 add_executable(
   example_libs_test
-  ring_buff_test.cpp
-  limited_vector_test.cpp
-
+  ${TEST_SOURCES}
 )
+
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${TEST_SOURCES})
 
 # Google Testとリンク
 target_link_libraries(
@@ -47,14 +52,17 @@ gtest_discover_tests(example_libs_test)
 
 # clang-formatターゲットの追加（対象ファイルを明示的に指定）
 find_program(CLANG_FORMAT clang-format)
+find_program(CLANG_FORMAT clang-format)
 if(CLANG_FORMAT)
+  # ソースファイルを収集
+  file(GLOB FORMAT_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+  )
+  
   add_custom_target(
     format
-    COMMAND ${CLANG_FORMAT} -i 
-      ${CMAKE_CURRENT_SOURCE_DIR}/ring_buff.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/ring_buff_test.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/limited_vector.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/limited_vector_test.cpp
+    COMMAND ${CLANG_FORMAT} -i ${FORMAT_SOURCES}
     COMMENT "Running clang-format on source files"
     VERBATIM
   )

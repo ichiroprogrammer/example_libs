@@ -22,7 +22,8 @@ function build() {
 
     cmake ..
     make -j
-    make -j test
+    #make -C build test ARGS="-V"
+    $BUILD_DIR/example_libs_test
 
     cd - > /dev/null
 }
