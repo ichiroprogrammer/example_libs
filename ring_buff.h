@@ -45,18 +45,18 @@ public:
         }
     }
 
-    std::optional<T const*> front() const noexcept  // const版
+    T const* front() const noexcept
     {
         if (empty()) {
-            return std::nullopt;
+            return nullptr;
         }
         return &buffer_[head_];
     }
 
-    T pop_by_copy()  // copyで要素を取り出す
+    std::optional<T> pop_by_copy()  // copyで要素を取り出す
     {
         if (empty()) {
-            throw std::underflow_error("RingBuff is empty");
+            return std::nullopt;
         }
         T value = buffer_[head_];
         head_   = (head_ + 1) % N;
@@ -64,10 +64,10 @@ public:
         return value;
     }
 
-    T pop()  // moveで要素を取り出す
+    std::optional<T> pop() noexcept  // moveで要素を取り出す
     {
         if (empty()) {
-            throw std::underflow_error("RingBuff is empty");
+            return std::nullopt;
         }
         T value = std::move(buffer_[head_]);
         head_   = (head_ + 1) % N;
@@ -75,16 +75,12 @@ public:
         return value;
     }
 
-    // バッファが空か
     bool empty() const noexcept { return count_ == 0; }
 
-    // バッファが満杯か
     bool full() const noexcept { return count_ == N; }
 
-    // 現在の要素数
     constexpr size_t size() const noexcept { return count_; }
 
-    // バッファの最大容量
     constexpr size_t capacity() const noexcept { return N; }
 
     // バッファをクリア

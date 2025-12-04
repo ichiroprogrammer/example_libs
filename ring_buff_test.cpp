@@ -20,9 +20,12 @@ TEST(RingBuffTest, BasicOperations)
     ASSERT_FALSE(rb.empty());
     ASSERT_EQ(rb.size(), 1);
 
-    int val = rb.pop();
-    ASSERT_EQ(val, 10);
+    auto val0 = rb.pop();
+    ASSERT_EQ(val0 ? *val0 : 0, 10);
+    auto val1 = rb.pop();
     ASSERT_TRUE(rb.empty());
+    auto val2 = rb.pop();
+    ASSERT_FALSE(val2);
     ASSERT_EQ(rb.size(), 0);
 }
 
@@ -68,7 +71,8 @@ TEST(RingBuffTest, UnderflowException)
 {
     RingBuff<int, 3> rb;
 
-    ASSERT_THROW(rb.pop(), std::underflow_error);
+    auto pop = rb.pop();
+    ASSERT_FALSE(pop);
 }
 
 // FIFO動作の確認
@@ -158,7 +162,7 @@ TEST(RingBuffTest, ContinuousOverwrite)
     ASSERT_EQ(rb.pop(), 5);
     ASSERT_TRUE(rb.empty());
 
-    auto const front = rb.front();
+    auto const* front = rb.front();
     ASSERT_FALSE(front);
 }
 
@@ -172,27 +176,27 @@ TEST(RingBuffTest, vector)
     ASSERT_EQ(v0.size(), 0);
 
     auto const& rb_const = rb;
-    auto        front0   = rb_const.front();
+    auto const* front0   = rb_const.front();
 
     ASSERT_TRUE(front0);
-
-    ASSERT_EQ((*front0)->size(), 3);
+    ASSERT_EQ(front0->size(), 3);
 
     rb.push(vector_int8_t{2, 3});
     rb.push(vector_int8_t{3});
     ASSERT_TRUE(rb.full());
 
     rb.push(vector_int8_t{});
-    auto front1 = rb.front();
-    ASSERT_EQ((*front1)->size(), 2);
+    auto const* front1 = rb.front();
+    ASSERT_EQ(front1 ? front1->size() : -1, 2);
 
     rb.push(vector_int8_t{});
     ASSERT_TRUE(rb.full());
-    auto front2 = rb.front();
-    ASSERT_EQ((*front2)->size(), 1);
+    auto const& front2 = rb.front();
+    ASSERT_TRUE(front2);
+    ASSERT_EQ(front2 ? front2->size() : -1, 1);
 
     auto v0_pop = rb.pop();
-    ASSERT_EQ(v0_pop.size(), 1);
+    ASSERT_EQ(v0_pop->size(), 1);
     ASSERT_FALSE(rb.full());
 
     vector_int8_t v{1, 2, 3, 4};
@@ -206,7 +210,7 @@ TEST(RingBuffTest, vector)
     ASSERT_EQ((vector_int8_t{}), v2_pop);
 
     auto v_pop = rb.pop();
-    ASSERT_EQ(4, v_pop.size());
+    ASSERT_EQ(4, v_pop->size());
 }
 
 TEST(RingBuffTest, DISABLED_perf_push)
@@ -231,8 +235,8 @@ TEST(RingBuffTest, DISABLED_perf_push)
     std::cout << "push(copy): " << perf0_ms << " ms" << std::endl;
     std::cout << "push(move): " << perf1_ms << " ms" << std::endl;
     // 著者の環境での結果
-    // push(copy): 50813 ms
-    // push(move): 24575 ms
+    // push(copy): 80545 ms
+    // push(move): 37093 ms
 }
 
 TEST(RingBuffTest, DISABLED_perf_pop)
@@ -247,16 +251,16 @@ TEST(RingBuffTest, DISABLED_perf_pop)
         vector_int8_t v0(vec_size, 1);
         rb.push(std::move(v0));
         auto v1 = rb.pop_by_copy();
-        ASSERT_EQ(v1.size(), vec_size);
+        ASSERT_EQ(v1->size(), vec_size);
     };
 
     auto perf1 = [&rb, vec_size = vec_size]() {
         vector_int8_t v0(vec_size, 1);
         rb.push(std::move(v0));
-        auto front = rb.front();
-        auto v1    = rb.pop();
-        ASSERT_EQ(v1.size(), vec_size);
-        ASSERT_EQ((*front)->size(), 0);
+        auto const* front = rb.front();
+        auto        v1    = rb.pop();
+        ASSERT_EQ(v1->size(), vec_size);
+        ASSERT_EQ(front->size(), 0);
     };
 
     auto perf0_ms = MeasurePerformance(count, perf0).count();
@@ -264,8 +268,8 @@ TEST(RingBuffTest, DISABLED_perf_pop)
     std::cout << "pop_by_copy: " << perf0_ms << " ms" << std::endl;
     std::cout << "pop(move):   " << perf1_ms << " ms" << std::endl;
     // 著者の環境での結果
-    // pop_by_copy: 53313 ms
-    // pop(move):   25817 ms
+    // pop_by_copy: 85104 ms
+    // pop(move):   40699 ms
 }
 
 int main(int argc, char** argv)
